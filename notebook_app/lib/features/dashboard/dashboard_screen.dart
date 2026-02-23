@@ -35,6 +35,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     });
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Tag filtresi değişince not listesini yenile
+    ref.listenManual(selectedTagFilterProvider, (prev, next) {
+      if (prev != next) {
+        setState(() => _selectedNavIndex = 0);
+        ref.read(notesProvider.notifier).loadNotes(tagId: next);
+      }
+    });
+  }
+
   Future<void> _createNote() async {
     final profile = ref.read(profileProvider).value;
     if (profile == null) return;
