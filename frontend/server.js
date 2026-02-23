@@ -28,6 +28,8 @@ const MIME_TYPES = {
   '.map': 'application/json',
 };
 
+const EXTERNAL_URL = process.env.REACT_APP_BACKEND_URL || 'https://notebook-preview.preview.emergentagent.com';
+
 function proxyToAdmin(req, res) {
   const options = {
     hostname: '127.0.0.1',
@@ -44,7 +46,13 @@ function proxyToAdmin(req, res) {
   };
 
   const proxy = http.request(options, (proxyRes) => {
-    res.writeHead(proxyRes.statusCode, proxyRes.headers);
+    // Location header içindeki yanlış URL'leri düzelt
+    // Laravel bazen https://localhost gibi yanlış redirect üretebilir
+    const headers = { ...proxyRes.headers };
+    if (headers.location && headers.location.includes('://localhost')) {
+      headers.location = headers.location.replace(/https?:\/\/localhost(:\d+)?/, EXTERNAL_URL);
+    }
+    res.writeHead(proxyRes.statusCode, headers);
     proxyRes.pipe(res, { end: true });
   });
 
