@@ -73,8 +73,8 @@ class FoldersNotifier extends StateNotifier<AsyncValue<List<FolderModel>>> {
     }
   }
 
-  Future<FolderModel> create({required String name, String? parentId, String icon = '📂'}) async {
-    final f = await _repo.createFolder(workspaceId: _workspaceId, name: name, parentId: parentId, icon: icon);
+  Future<FolderModel> create({required String name, String? parentId, String icon = '📂', String color = '#6366F1'}) async {
+    final f = await _repo.createFolder(workspaceId: _workspaceId, name: name, parentId: parentId, icon: icon, color: color);
     final current = state.value ?? [];
     state = AsyncValue.data([...current, f]);
     return f;
