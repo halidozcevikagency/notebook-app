@@ -419,6 +419,11 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                                 ),
                               ),
                             ),
+                          // Etiketler
+                          if (_noteTagIds.isNotEmpty) ...[
+                            _NoteTagRow(tagIds: _noteTagIds),
+                            const SizedBox(height: 12),
+                          ],
                           // Quill editör - focus ve cursor tamamen korunur
                           quill.QuillEditor.basic(
                             controller: _controller,
