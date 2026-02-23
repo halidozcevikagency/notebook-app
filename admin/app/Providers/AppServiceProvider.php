@@ -19,10 +19,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Proxy arkasında doğru URL üretimi için
+        // Proxy arkasında doğru URL üretimi
+        // Not: env() yerine config() kullanılıyor — config cache aktifken env() çalışmaz
+        $appUrl = rtrim(config('app.url', 'http://localhost'), '/');
         \Illuminate\Support\Facades\URL::forceScheme('https');
-        \Illuminate\Support\Facades\URL::forceRootUrl(
-            rtrim(env('APP_URL', 'http://localhost'), '/')
-        );
+        \Illuminate\Support\Facades\URL::forceRootUrl($appUrl);
     }
 }
