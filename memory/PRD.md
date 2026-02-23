@@ -11,7 +11,7 @@ Modern bir not alma ekosistemi: Apple Notes'un sadeliği + Notion'ın esnekliği
 ## Mimari
 
 ### Tech Stack
-- **Frontend/Mobile:** Flutter 3.41.2 (flutter_riverpod state management)
+- **Frontend/Mobile:** Flutter 3.42.x (flutter_riverpod state management)
 - **Backend/DB:** Supabase (PostgreSQL, Auth, Storage, Realtime)
 - **Local Cache:** Hive (Offline-First)
 - **AI:** OpenAI GPT-4o-mini + Emergent Universal LLM Key
@@ -26,22 +26,23 @@ Modern bir not alma ekosistemi: Apple Notes'un sadeliği + Notion'ın esnekliği
 │   ├── core/
 │   │   ├── config/            # Supabase config, GoRouter
 │   │   ├── constants/         # AppColors, AppStrings
-│   │   ├── services/          # LocalCacheService (Hive), AiService (OpenAI)
+│   │   ├── services/          # LocalCacheService (Hive), AiService (OpenAI), ExportService
 │   │   ├── theme/             # Light/Dark AppTheme (Material 3)
 │   │   └── utils/             # DateFormatter
 │   ├── data/
-│   │   ├── models/            # NoteModel, ProfileModel, WorkspaceModel, etc.
-│   │   └── repositories/      # AuthRepository, NoteRepository
-│   ├── providers/             # Riverpod providers (auth, notes, theme)
+│   │   ├── models/            # NoteModel, ProfileModel, WorkspaceModel, FolderModel, TagModel
+│   │   └── repositories/      # AuthRepository, NoteRepository, WorkspaceRepository, TagRepository
+│   ├── providers/             # app_providers, workspace_providers, tag_providers
 │   ├── features/
 │   │   ├── auth/              # AuthScreen (Email/Google/GitHub/Apple)
-│   │   ├── dashboard/         # DashboardScreen (sidebar, not listesi)
-│   │   ├── editor/            # NoteEditorScreen (Quill editör, AI panel)
+│   │   ├── dashboard/         # DashboardScreen (sidebar: notes, workspaces, tags, folders)
+│   │   ├── editor/            # NoteEditorScreen (Quill editör, AI panel, tag manager, export)
+│   │   ├── workspace/         # WorkspaceScreen + WorkspaceDetailScreen (drag & drop klasörler)
 │   │   ├── search/            # SearchDelegate
 │   │   ├── profile/           # ProfileScreen (ayarlar, tema, hesap silme)
 │   │   ├── share/             # ShareNoteScreen
 │   │   └── trash/             # TrashScreen
-│   └── widgets/               # NoteCard, EmptyState
+│   └── widgets/               # NoteCard, EmptyState, TagManagerWidget
 ├── web/
 │   └── index.html             # Locale patch (Flutter web fix)
 └── pubspec.yaml
@@ -49,10 +50,10 @@ Modern bir not alma ekosistemi: Apple Notes'un sadeliği + Notion'ın esnekliği
 
 ### Supabase Şeması
 - `profiles` - Kullanıcı profilleri (Auth ile entegre trigger)
-- `workspaces` - Çalışma alanları
-- `folders` - Klasörler (nested, iç içe)
+- `workspaces` - Çalışma alanları (RLS: owner_id)
+- `folders` - Klasörler (nested, iç içe, RLS: owner_id)
 - `notes` - Notlar (JSONB blok içerik, Full-text arama)
-- `note_tags`, `tags` - Etiket sistemi
+- `note_tags`, `tags` - Etiket sistemi (RLS: owner_id)
 - `note_shares` - Paylaşım linkleri (UUID token, şifreli)
 - `note_invitations` - E-posta davetleri
 - `note_change_requests` - Git-flow onay mekanizması
@@ -82,6 +83,26 @@ Modern bir not alma ekosistemi: Apple Notes'un sadeliği + Notion'ın esnekliği
 - [x] Backend sağlık API (FastAPI /api/health, /api/config)
 - [x] Demo user: demo@notebook.app / Demo1234!
 
+### 2026-02-23 - Sprint 2 (Bu Oturum)
+- [x] **Workspace & Klasör Yönetimi (Gelişmiş - B şıkkı)**:
+  - Router'a `/workspaces` ve `/workspace/:id` rotaları eklendi
+  - Dashboard sidebar'ına Workspaces bölümü + genişletilebilir klasör ağacı eklendi
+  - WorkspaceScreen: emoji ikon + 12 renk seçicili workspace CRUD
+  - WorkspaceDetailScreen: iki kolonlu layout (klasör paneli + notlar)
+  - Klasör ağacı: iç içe alt klasörler (2 seviye)
+  - **Drag & Drop** klasör sıralama (ReorderableListView)
+  - Klasöre renk + emoji ikon atama
+  - Alt klasör oluşturma (parent context menüsü)
+- [x] **PDF Export**: ExportService ile bir tıkla PDF indirme (dart:html + pdf paketi)
+- [x] **Markdown Export**: Not içeriğini `.md` dosyası olarak indirme
+- [x] **Renkli Etiket (Tag) Sistemi**:
+  - TagRepository: CRUD + not-etiket ilişkilendirme
+  - tag_providers.dart: TagsNotifier
+  - TagManagerWidget: renk seçicili etiket oluşturma/seçme
+  - Not editöründe Tag butonu (AppBar) → Modal bottom sheet
+  - Editörde etiket rozetleri görüntüleme
+  - Dashboard sidebar'da Tags bölümü (filtreleme desteği)
+
 ---
 
 ## Kullanıcı Kişilikleri
@@ -94,17 +115,15 @@ Modern bir not alma ekosistemi: Apple Notes'un sadeliği + Notion'ın esnekliği
 ## Backlog (P0/P1/P2)
 
 ### P0 - Kritik (Sonraki Sprint)
-- [ ] Supabase OAuth provider yapılandırması (Google, GitHub, Apple dashboard ayarları)
+- [ ] Supabase OAuth provider yapılandırması (Google, GitHub, Apple dashboard ayarları - kullanıcı tarafından yapılacak)
 - [ ] Email confirmation bypass (production'da OTP veya magic link)
-- [ ] Flutter web build otomasyonu (her kod değişikliğinde auto-rebuild)
 - [ ] Supabase Storage bucket oluşturma ve görsel yükleme
 
 ### P1 - Önemli
-- [ ] Workspace ve klasör yönetimi UI
-- [ ] Renkli etiket (Tag) sistemi UI
 - [ ] Not versiyonlama (geçmiş görüntüleme)
-- [ ] PDF/Markdown export
-- [ ] WhatsApp/Instagram hızlı paylaşım
+- [ ] WhatsApp/Instagram hızlı paylaşım butonları
+- [ ] Not kartlarında etiket görüntüleme (NoteCard'da TagBadge)
+- [ ] Etiket filtreleme entegrasyonu (seçili tag ile not listesi yenileme)
 - [ ] Realtime işbirliği (imleç takibi)
 
 ### P2 - Gelecek
@@ -120,7 +139,8 @@ Modern bir not alma ekosistemi: Apple Notes'un sadeliği + Notion'ın esnekliği
 ---
 
 ## Sonraki Adımlar
-1. Supabase Dashboard > Auth > Providers'da Google/GitHub/Apple'ı etkinleştir
-2. `flutter build web` otomasyonu için supervisor'a build hook ekle
-3. Workspace UI'sını tamamla
-4. Admin panel (Laravel/Filament) kurulumu
+1. Supabase Dashboard > Auth > Providers'da Google/GitHub/Apple'ı etkinleştir (kullanıcı)
+2. Not kartlarında etiket görüntüleme (NoteCard güncelleme)
+3. Etiket filtresi ile not listesi entegrasyonu
+4. Not versiyonlama
+5. Admin panel (Laravel/Filament) kurulumu
