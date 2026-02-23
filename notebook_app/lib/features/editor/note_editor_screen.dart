@@ -311,6 +311,11 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
               onPressed: () => setState(() => _showAiPanel = !_showAiPanel),
               tooltip: 'AI Assistant',
             ),
+            IconButton(
+              icon: const Icon(PhosphorIconsRegular.tag),
+              onPressed: _showTagManager,
+              tooltip: 'Tags',
+            ),
             PopupMenuButton<String>(
               icon: const Icon(PhosphorIconsRegular.dotsThreeVertical),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
