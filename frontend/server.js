@@ -28,7 +28,11 @@ const MIME_TYPES = {
   '.map': 'application/json',
 };
 
-const EXTERNAL_URL = process.env.REACT_APP_BACKEND_URL || 'https://notebook-preview.preview.emergentagent.com';
+const EXTERNAL_URL = process.env.REACT_APP_BACKEND_URL;
+if (!EXTERNAL_URL) {
+  console.error('FATAL: REACT_APP_BACKEND_URL env var is not set');
+  process.exit(1);
+}
 
 function proxyToAdmin(req, res) {
   const options = {
