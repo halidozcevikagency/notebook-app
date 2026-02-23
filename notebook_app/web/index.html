@@ -1,58 +1,46 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
-
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="Notebook - Your thoughts, beautifully organized">
-
-  <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Notebook">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
-
   <title>Notebook</title>
   <link rel="manifest" href="manifest.json">
-  <!-- Locale patch: Fix RangeError in headless/containerized browsers -->
+
+  <!-- CRITICAL: Locale patch - must run synchronously before any Flutter script -->
+  <!-- Fixes: RangeError: Incorrect locale information provided in containerized environments -->
   <script>
     (function() {
+      'use strict';
+      try { Object.defineProperty(navigator, 'language', { get: function() { return 'en-US'; }, configurable: true }); } catch(e) {}
+      try { Object.defineProperty(navigator, 'languages', { get: function() { return ['en-US', 'en']; }, configurable: true }); } catch(e) {}
       try {
-        new Intl.NumberFormat('en-US').format(1);
-      } catch(e) {
-        console.warn('Locale fix applied');
-        try { Object.defineProperty(navigator, 'language', { value: 'en-US', configurable: true }); } catch(e2) {}
-      }
+        if (typeof Intl !== 'undefined' && typeof Intl.v8BreakIterator !== 'undefined') {
+          var _O = Intl.v8BreakIterator;
+          Intl.v8BreakIterator = function(l, o) { try { return new _O(l && l.length > 0 ? l : ['en-US'], o); } catch(e) { return new _O(['en-US'], o); } };
+          Intl.v8BreakIterator.prototype = _O.prototype;
+          if (_O.supportedLocalesOf) Intl.v8BreakIterator.supportedLocalesOf = _O.supportedLocalesOf;
+        }
+      } catch(e) {}
+      try {
+        if (typeof Intl !== 'undefined' && typeof Intl.Segmenter !== 'undefined') {
+          var _OS = Intl.Segmenter;
+          Intl.Segmenter = function(l, o) { try { return new _OS(l || 'en-US', o); } catch(e) { return new _OS('en-US', o); } };
+          Intl.Segmenter.prototype = _OS.prototype;
+          if (_OS.supportedLocalesOf) Intl.Segmenter.supportedLocalesOf = _OS.supportedLocalesOf;
+        }
+      } catch(e) {}
     })();
   </script>
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
-
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
