@@ -1,5 +1,5 @@
 /// Not kartı bileşeni
-/// Dashboard'da notları gösterir - pin, favori, bağlam menüsü
+/// Dashboard'da notları gösterir - pin, favori, etiket rozetleri, bağlam menüsü
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,7 +8,9 @@ import '../core/constants/app_colors.dart';
 import '../core/constants/app_strings.dart';
 import '../core/utils/date_formatter.dart';
 import '../data/models/note_model.dart';
+import '../data/models/base_models.dart';
 import '../providers/app_providers.dart';
+import '../providers/tag_providers.dart';
 
 class NoteCard extends ConsumerWidget {
   final NoteModel note;
