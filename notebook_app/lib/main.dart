@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'core/config/supabase_config.dart';
 import 'core/services/local_cache_service.dart';
 import 'app.dart';
@@ -10,6 +11,9 @@ import 'app.dart';
 void main() async {
   // Flutter binding başlat
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Intl locale verilerini başlat
+  await initializeDateFormatting('en_US', null);
 
   // Supabase'i başlat
   await Supabase.initialize(
