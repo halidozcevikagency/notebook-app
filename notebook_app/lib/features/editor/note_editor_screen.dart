@@ -15,9 +15,11 @@ import '../../core/services/export_service.dart';
 import '../../core/utils/date_formatter.dart';
 import '../../data/models/note_model.dart';
 import '../../data/repositories/note_repository.dart';
+import '../../data/repositories/version_repository.dart';
 import '../../providers/app_providers.dart';
 import '../../providers/tag_providers.dart';
 import '../../widgets/tag_manager_widget.dart';
+import 'version_history_screen.dart';
 
 class NoteEditorScreen extends ConsumerStatefulWidget {
   final String noteId;
