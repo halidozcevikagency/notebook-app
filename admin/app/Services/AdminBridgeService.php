@@ -16,8 +16,9 @@ class AdminBridgeService
 
     public function __construct()
     {
-        $this->baseUrl = env('ADMIN_BRIDGE_URL', 'http://localhost:8001');
-        $this->apiKey = env('ADMIN_API_KEY', '');
+        // env() yerine config() kullanılıyor — config cache aktifken env() null döner
+        $this->baseUrl = config('services.admin_bridge.url', 'http://localhost:8001');
+        $this->apiKey  = config('services.admin_bridge.key', '');
     }
 
     private function headers(): array
