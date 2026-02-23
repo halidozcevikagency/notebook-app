@@ -1,6 +1,8 @@
 /// Ana uygulama widget'ı
 /// Tema, routing ve Supabase entegrasyonunu bir araya getirir
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/config/app_router.dart';
 import 'core/theme/app_theme.dart';
@@ -33,6 +35,16 @@ class NotebookApp extends ConsumerWidget {
       darkTheme: AppTheme.dark,
       themeMode: themeMode,
       routerConfig: router,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        FlutterQuillLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en', 'US'),
+        Locale('tr', 'TR'),
+      ],
     );
   }
 }
