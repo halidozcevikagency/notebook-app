@@ -15,9 +15,28 @@ class NoteRepository {
     String? folderId,
     bool pinnedOnly = false,
     bool favoritesOnly = false,
+    String? tagId,
   }) async {
     try {
-      // Filtreleri önce oluştur, order'ı sonra ekle
+      // Tag filtresi varsa note_tags üzerinden ID listesi al
+      if (tagId != null) {
+        final taggedNoteIds = await _supabase
+            .from('note_tags')
+            .select('note_id')
+            .eq('tag_id', tagId);
+        final ids = (taggedNoteIds as List).map((r) => r['note_id'] as String).toList();
+        if (ids.isEmpty) return [];
+
+        final data = await _supabase
+            .from('notes')
+            .select()
+            .isFilter('deleted_at', null)
+            .eq('is_archived', false)
+            .inFilter('id', ids)
+            .order('updated_at', ascending: false);
+        return (data as List).map((j) => NoteModel.fromJson(j as Map<String, dynamic>)).toList();
+      }
+
       dynamic query = _supabase
           .from('notes')
           .select()
@@ -42,11 +61,9 @@ class NoteRepository {
           .order('updated_at', ascending: false);
       final notes = data.map((j) => NoteModel.fromJson(j as Map<String, dynamic>)).toList();
       
-      // Yerel cache'e kaydet (offline-first)
       await _cache.saveNotes(notes);
       return notes;
     } catch (e) {
-      // Internet yoksa cache'den yükle
       return await _cache.getNotes(workspaceId: workspaceId, folderId: folderId);
     }
   }
