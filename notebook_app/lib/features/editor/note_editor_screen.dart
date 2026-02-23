@@ -68,6 +68,9 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
         );
       }
 
+      // Etiketleri yükle
+      _noteTagIds = await ref.read(tagRepositoryProvider).fetchNoteTagIds(widget.noteId);
+
       setState(() => _isLoaded = true);
 
       // Listener'ları sadece yükleme tamamlandıktan SONRA ekle
