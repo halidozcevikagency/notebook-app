@@ -30,9 +30,21 @@ const MIME_TYPES = {
 
 const EXTERNAL_URL = process.env.REACT_APP_BACKEND_URL;
 if (!EXTERNAL_URL) {
+  // .env dosyasından oku (supervisor env aktarmayabilir)
+  const fs = require('fs');
+  try {
+    const envContent = fs.readFileSync(path.join(__dirname, '.env'), 'utf-8');
+    const match = envContent.match(/^REACT_APP_BACKEND_URL=(.+)$/m);
+    if (match) process.env.REACT_APP_BACKEND_URL = match[1].trim();
+  } catch (_) {}
+}
+const EXTERNAL_URL_VAL = process.env.REACT_APP_BACKEND_URL;
+if (!EXTERNAL_URL_VAL) {
   console.error('FATAL: REACT_APP_BACKEND_URL env var is not set');
   process.exit(1);
 }
+// Tek değişken ismi kullan
+Object.defineProperty(global, 'EXTERNAL_URL', { value: EXTERNAL_URL_VAL, writable: false });
 
 function proxyToAdmin(req, res) {
   const options = {
