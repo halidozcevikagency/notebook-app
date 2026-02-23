@@ -21,11 +21,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-SUPABASE_URL = "https://lugshtlpcgcrbelsombz.supabase.co"
-SUPABASE_ANON_KEY = os.environ.get("SUPABASE_ANON_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1Z3NodGxwY2djcmJlbHNvbWJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4MTk2MzAsImV4cCI6MjA4NzM5NTYzMH0.FeLzVIpYmbMErW3-sbIg1LgrzbaysmpwTBX0ht0YVi8")
-ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY", "nb-admin-7x9k2m4p8q1r5s3t6u0v")
-# Admin JWT token (demo user token for SECURITY DEFINER fonksiyonları)
-ADMIN_JWT = os.environ.get("ADMIN_JWT", "")
+SUPABASE_URL      = os.environ.get("SUPABASE_URL")
+SUPABASE_ANON_KEY = os.environ.get("SUPABASE_ANON_KEY")
+ADMIN_API_KEY     = os.environ.get("ADMIN_API_KEY")
+ADMIN_JWT         = os.environ.get("ADMIN_JWT", "")
 
 
 async def verify_admin_key(x_admin_key: str = Header(...)):
