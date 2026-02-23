@@ -5,24 +5,19 @@ namespace App\Filament\Resources\NoteResource\Pages;
 use App\Filament\Resources\NoteResource;
 use App\Services\AdminBridgeService;
 use Filament\Resources\Pages\ListRecords;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 class ListNotes extends ListRecords
 {
     protected static string $resource = NoteResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [];
-    }
+    protected function getHeaderActions(): array { return []; }
 
-    /**
-     * Supabase notlarını Admin Bridge üzerinden getirir.
-     */
-    public function getTableRecords(): Collection|\Illuminate\Contracts\Pagination\Paginator|\Illuminate\Contracts\Pagination\CursorPaginator
+    public function getTableRecords(): EloquentCollection|\Illuminate\Contracts\Pagination\Paginator|\Illuminate\Contracts\Pagination\CursorPaginator
     {
         $bridge = new AdminBridgeService();
-        $notes = $bridge->getNotes(limit: 100);
-        return collect($notes)->map(fn ($n) => (object) $n);
+        $notes  = $bridge->getNotes(limit: 100);
+        $items  = collect($notes)->map(fn ($n) => new \Illuminate\Support\Fluent((array) $n));
+        return EloquentCollection::make($items);
     }
 }
