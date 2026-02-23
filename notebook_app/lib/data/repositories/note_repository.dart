@@ -20,7 +20,7 @@ class NoteRepository {
       var query = _supabase
           .from('notes')
           .select()
-          .is_('deleted_at', null)
+          .isFilter('deleted_at', null)
           .eq('is_archived', false)
           .order('is_pinned', ascending: false)
           .order('updated_at', ascending: false);
