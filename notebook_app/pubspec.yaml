@@ -30,21 +30,62 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+
+  # Supabase - Backend, Auth, Storage, Realtime
+  supabase_flutter: ^2.9.0
+
+  # State Management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Navigation
+  go_router: ^14.8.1
+
+  # Local Database (Offline-First)
+  isar: ^3.1.0+1
+  isar_flutter_libs: ^3.1.0+1
+  path_provider: ^2.1.5
+
+  # UI & Theming
+  google_fonts: ^6.2.1
+  flutter_animate: ^4.5.2
+  shimmer: ^3.0.0
+  cached_network_image: ^3.4.1
+  phosphor_flutter: ^2.1.0
+
+  # Editor
+  flutter_quill: ^11.4.0
+
+  # Media
+  image_picker: ^1.1.2
+  file_picker: ^8.3.7
+
+  # Auth Providers (Google & Apple)
+  google_sign_in: ^6.2.2
+  sign_in_with_apple: ^6.1.4
+
+  # Utilities
+  shared_preferences: ^2.3.5
+  uuid: ^4.5.1
+  intl: ^0.20.2
+  http: ^1.4.0
+  crypto: ^3.0.6
+  url_launcher: ^6.3.1
+  share_plus: ^10.1.4
+  pdf: ^3.11.3
+  printing: ^5.14.2
+
+  # Connectivity
+  connectivity_plus: ^6.1.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  build_runner: ^2.4.15
+  riverpod_generator: ^2.6.5
+  isar_generator: ^3.1.0+1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
