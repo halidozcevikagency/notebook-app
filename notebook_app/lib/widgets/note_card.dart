@@ -93,6 +93,8 @@ class NoteCard extends ConsumerWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
+                // Etiket rozetleri
+                _NoteTags(noteId: note.id),
                 const SizedBox(height: 10),
                 Text(
                   DateFormatter.format(note.updatedAt),
