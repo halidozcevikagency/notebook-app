@@ -72,4 +72,18 @@ class TagRepository {
         .eq('note_id', noteId);
     return (data as List).map((j) => j['tag_id'] as String).toList();
   }
+
+  /// Kullanıcıya ait tüm not-etiket ilişkileri → Map<noteId, List<tagId>>
+  Future<Map<String, List<String>>> fetchAllNoteTagsMap() async {
+    final data = await _supabase
+        .from('note_tags')
+        .select('note_id, tag_id');
+    final map = <String, List<String>>{};
+    for (final row in (data as List)) {
+      final noteId = row['note_id'] as String;
+      final tagId = row['tag_id'] as String;
+      map.putIfAbsent(noteId, () => []).add(tagId);
+    }
+    return map;
+  }
 }
