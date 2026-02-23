@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    // Notebook Admin Bridge — FastAPI backend bağlantısı
+    'admin_bridge' => [
+        'url' => env('ADMIN_BRIDGE_URL', 'http://localhost:8001'),
+        'key' => env('ADMIN_API_KEY', ''),
+    ],
+
 ];
