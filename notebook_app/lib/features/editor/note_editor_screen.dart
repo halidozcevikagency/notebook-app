@@ -501,21 +501,27 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     );
   }
 
-  void _restoreVersion(String title, List blocksJson) {
+  Future<void> _restoreVersion(String title, List blocksJson) async {
+    final blocks = blocksJson
+        .map((b) => NoteBlock.fromJson(b as Map<String, dynamic>))
+        .toList();
     setState(() {
       _titleController.text = title;
-      final blocks = blocksJson
-          .map((b) => NoteBlock.fromJson(b as Map<String, dynamic>))
-          .toList();
       final delta = _blocksToQuillDelta(blocks);
       _controller.document = quill.Document.fromDelta(delta);
       if (_localNote != null) {
         _localNote = _localNote!.copyWith(title: title, blocks: blocks);
       }
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Version restored! Save to keep changes.')),
-    );
+    // Geri yüklenen versiyonu yeni bir versiyon olarak kaydet
+    // Böylece versiyon geçmişinde "Latest" etiketi doğru versiyona işaret eder
+    await _saveInBackground();
+    await _saveVersion();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Version restored and saved as new version.')),
+      );
+    }
   }
 
   Future<void> _saveVersion() async {
