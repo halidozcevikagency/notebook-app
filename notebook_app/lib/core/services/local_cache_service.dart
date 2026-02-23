@@ -1,7 +1,7 @@
 /// Yerel önbellek servisi (Offline-First)
 /// Hive kullanarak notları yerel olarak saklar
 import 'package:hive_flutter/hive_flutter.dart';
-import '../models/note_model.dart';
+import '../../data/models/note_model.dart';
 import 'dart:convert';
 
 class LocalCacheService {
