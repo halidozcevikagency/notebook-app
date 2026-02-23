@@ -429,11 +429,37 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     );
   }
 
-  void _exportNote(String type) {
-    // Export mantığı ayrı servise taşındı - ileride eklenecek
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Export (${type == 'export_pdf' ? 'PDF' : 'Markdown'}) coming soon')),
-    );
+  void _exportNote(String type) async {
+    if (_localNote == null) return;
+    
+    // Önce kaydet
+    await _saveInBackground();
+    
+    final plainText = _controller.document.toPlainText().trim();
+    
+    try {
+      if (type == 'export_pdf') {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Generating PDF...')),
+          );
+        }
+        await ExportService.exportAsPdf(context, _localNote!, plainText);
+      } else {
+        ExportService.exportAsMarkdown(_localNote!, plainText);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Markdown file downloaded')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Export error: $e'), backgroundColor: AppColors.error),
+        );
+      }
+    }
   }
 }
 
