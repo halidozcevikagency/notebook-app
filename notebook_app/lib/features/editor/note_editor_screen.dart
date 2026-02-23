@@ -423,7 +423,8 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
 
   void _showShareOptions(BuildContext context, NoteModel note) {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => Placeholder(), // Share screen placeholder
+      builder: (_) => const Center(child: Text('Share coming soon')),
+      fullscreenDialog: true,
     ));
   }
 }
