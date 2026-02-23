@@ -441,9 +441,9 @@ class _AiPanel extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final operations = [
       ('summarize', PhosphorIconsRegular.textAlignLeft, 'Summarize'),
-      ('spellcheck', PhosphorIconsRegular.spellCheck, 'Spell Check'),
-      ('translate_tr', PhosphorIconsRegular.translate, 'To Turkish'),
-      ('translate_en', PhosphorIconsRegular.translate, 'To English'),
+      ('spellcheck', PhosphorIconsRegular.pencil, 'Spell Check'),
+      ('translate_tr', PhosphorIconsRegular.globe, 'To Turkish'),
+      ('translate_en', PhosphorIconsRegular.globe, 'To English'),
     ];
 
     return Container(
