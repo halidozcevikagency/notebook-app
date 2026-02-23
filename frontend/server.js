@@ -38,27 +38,34 @@ function proxyToAdmin(req, res) {
     method: req.method,
     headers: {
       ...req.headers,
-      host: `127.0.0.1:${ADMIN_PORT}`,
-      'X-Forwarded-Host': req.headers.host || '',
-      'X-Forwarded-Proto': 'https',
-      'X-Forwarded-For': req.socket.remoteAddress || '',
+      'host': `127.0.0.1:${ADMIN_PORT}`,
+      'x-forwarded-host': req.headers['host'] || '',
+      'x-forwarded-proto': 'https',
+      'x-real-ip': req.socket.remoteAddress || '127.0.0.1',
     },
   };
+  // Cloudflare'in eklediği büyük header'ları çıkar (520 hatasını önler)
+  delete options.headers['cf-ray'];
+  delete options.headers['cf-connecting-ip'];
+  delete options.headers['cf-ipcountry'];
+  delete options.headers['cf-visitor'];
 
   const proxy = http.request(options, (proxyRes) => {
-    // Location header içindeki yanlış URL'leri düzelt
-    // Laravel bazen https://localhost gibi yanlış redirect üretebilir
+    // Location header içindeki yanlış host'u düzelt
     const headers = { ...proxyRes.headers };
-    if (headers.location && headers.location.includes('://localhost')) {
-      headers.location = headers.location.replace(/https?:\/\/localhost(:\d+)?/, EXTERNAL_URL);
+    if (headers['location'] && (headers['location'].includes('://localhost') || headers['location'].includes(':8002'))) {
+      headers['location'] = headers['location']
+        .replace(/https?:\/\/localhost(:\d+)?/, EXTERNAL_URL)
+        .replace(/https?:\/\/127\.0\.0\.1(:\d+)?/, EXTERNAL_URL);
     }
     res.writeHead(proxyRes.statusCode, headers);
     proxyRes.pipe(res, { end: true });
   });
 
   proxy.on('error', (err) => {
+    console.error('Admin proxy error:', err.message);
     res.writeHead(502);
-    res.end('<h2>Admin panel starting up... Please wait a moment and refresh.</h2>');
+    res.end('<h2>Admin panel starting up... Please refresh.</h2>');
   });
 
   req.pipe(proxy, { end: true });
