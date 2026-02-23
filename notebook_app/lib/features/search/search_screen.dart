@@ -1,11 +1,9 @@
 /// Arama ekranı ve SearchDelegate implementasyonu
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
-import '../../data/models/note_model.dart';
 import '../../providers/app_providers.dart';
 import '../../widgets/note_card.dart';
 import '../../widgets/empty_state_widget.dart';
