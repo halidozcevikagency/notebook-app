@@ -104,29 +104,31 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   onNewNote: _createNote,
                 ),
 
-                // Not listesi
+                // Not listesi veya Çöp kutusu görünümü
                 Expanded(
-                  child: notesAsync.when(
-                    data: (notes) => notes.isEmpty
-                        ? const EmptyStateWidget()
-                        : _NotesList(notes: notes),
-                    loading: () => const Center(child: CircularProgressIndicator()),
-                    error: (e, _) => Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(PhosphorIconsBold.warning, size: 48,
-                              color: AppColors.error),
-                          const SizedBox(height: 12),
-                          Text(AppStrings.error),
-                          TextButton(
-                            onPressed: () => ref.read(notesProvider.notifier).loadNotes(),
-                            child: const Text(AppStrings.retry),
+                  child: _selectedNavIndex == 3
+                      ? _TrashView()
+                      : notesAsync.when(
+                          data: (notes) => notes.isEmpty
+                              ? const EmptyStateWidget()
+                              : _NotesList(notes: notes),
+                          loading: () => const Center(child: CircularProgressIndicator()),
+                          error: (e, _) => Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(PhosphorIconsBold.warning, size: 48,
+                                    color: AppColors.error),
+                                const SizedBox(height: 12),
+                                Text(AppStrings.error),
+                                TextButton(
+                                  onPressed: () => ref.read(notesProvider.notifier).loadNotes(),
+                                  child: const Text(AppStrings.retry),
+                                ),
+                              ],
+                            ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
+                        ),
                 ),
               ],
             ),
