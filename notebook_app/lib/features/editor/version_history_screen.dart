@@ -3,9 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import '../core/constants/app_colors.dart';
-import '../core/utils/date_formatter.dart';
-import '../data/repositories/version_repository.dart';
+import '../../core/constants/app_colors.dart';
+import '../../core/utils/date_formatter.dart';
+import '../../data/repositories/version_repository.dart';
 
 class VersionHistoryScreen extends ConsumerWidget {
   final String noteId;
