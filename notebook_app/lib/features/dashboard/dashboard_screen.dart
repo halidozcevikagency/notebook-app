@@ -11,7 +11,6 @@ import '../../providers/app_providers.dart';
 import '../../data/models/note_model.dart';
 import '../../widgets/note_card.dart';
 import '../../widgets/empty_state_widget.dart';
-import '../../core/utils/date_formatter.dart';
 import '../search/search_screen.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
