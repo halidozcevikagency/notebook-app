@@ -9,6 +9,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../../providers/app_providers.dart';
 import '../../providers/workspace_providers.dart';
+import '../../providers/tag_providers.dart';
 import '../../data/models/note_model.dart';
 import '../../data/models/base_models.dart';
 import '../../widgets/note_card.dart';
