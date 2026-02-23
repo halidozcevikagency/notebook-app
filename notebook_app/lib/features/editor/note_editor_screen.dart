@@ -495,6 +495,44 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
   }
 }
 
+// ─── Note Tag Row ────────────────────────────────────────────────────────────
+
+class _NoteTagRow extends ConsumerWidget {
+  final List<String> tagIds;
+  const _NoteTagRow({required this.tagIds});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tagsAsync = ref.watch(tagsProvider);
+    return tagsAsync.when(
+      data: (allTags) {
+        final noteTags = allTags.where((t) => tagIds.contains(t.id)).toList();
+        if (noteTags.isEmpty) return const SizedBox.shrink();
+        return Wrap(
+          spacing: 6,
+          runSpacing: 4,
+          children: noteTags.map((tag) {
+            final color = Color(int.parse(tag.color.replaceFirst('#', '0xFF')));
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: color.withValues(alpha: 0.3)),
+              ),
+              child: Text(tag.name,
+                  style: TextStyle(
+                      fontSize: 11, color: color, fontWeight: FontWeight.w600)),
+            );
+          }).toList(),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+}
+
 // ─── AI Panel ────────────────────────────────────────────────────────────────
 
 class _AiPanel extends StatelessWidget {
