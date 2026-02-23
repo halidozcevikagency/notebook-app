@@ -19,6 +19,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Proxy arkasında doğru URL üretimi için
+        \Illuminate\Support\Facades\URL::forceScheme('https');
+        \Illuminate\Support\Facades\URL::forceRootUrl(
+            rtrim(env('APP_URL', 'http://localhost'), '/')
+        );
     }
 }
