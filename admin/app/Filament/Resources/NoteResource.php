@@ -44,7 +44,6 @@ class NoteResource extends Resource
     {
         return $table
             ->query(fn () => \App\Models\User::query()->whereRaw('1=0'))
-            ->records(fn ($table) => self::getRecords())
             ->columns([
                 TextColumn::make('title')
                     ->label('Title')
