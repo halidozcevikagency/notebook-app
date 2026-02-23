@@ -453,6 +453,75 @@ class _NavItem extends StatelessWidget {
   }
 }
 
+// ─── Tag Sidebar List ─────────────────────────────────────────────────────────
+
+class _TagSidebarList extends ConsumerWidget {
+  const _TagSidebarList();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final tagsAsync = ref.watch(tagsProvider);
+    final selectedTag = ref.watch(selectedTagFilterProvider);
+
+    return tagsAsync.when(
+      data: (tags) {
+        if (tags.isEmpty) return const SizedBox.shrink();
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: tags.map((tag) {
+            final color = Color(int.parse(tag.color.replaceFirst('#', '0xFF')));
+            final isSelected = selectedTag == tag.id;
+            return Material(
+              color: isSelected ? color.withValues(alpha: 0.1) : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
+              child: InkWell(
+                onTap: () {
+                  ref.read(selectedTagFilterProvider.notifier).state =
+                      isSelected ? null : tag.id;
+                },
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration:
+                            BoxDecoration(color: color, shape: BoxShape.circle),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          tag.name,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: isSelected
+                                ? color
+                                : (isDark
+                                    ? AppColors.textSecondaryDark
+                                    : AppColors.textSecondaryLight),
+                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+}
+
 // ─── Sidebar Section Header ──────────────────────────────────────────────────
 
 class _SidebarSectionHeader extends StatelessWidget {
