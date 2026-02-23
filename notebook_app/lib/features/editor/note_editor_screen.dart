@@ -469,6 +469,61 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     );
   }
 
+  void _showVersionHistory() {
+    if (_localNote == null) return;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SizedBox(
+        height: MediaQuery.of(context).size.height * 0.75,
+        child: VersionHistoryScreen(
+          noteId: widget.noteId,
+          onRestore: (title, blocksJson) => _restoreVersion(title, blocksJson),
+        ),
+      ),
+    );
+  }
+
+  void _restoreVersion(String title, List blocksJson) {
+    setState(() {
+      _titleController.text = title;
+      final blocks = blocksJson
+          .map((b) => NoteBlock.fromJson(b as Map<String, dynamic>))
+          .toList();
+      final delta = _blocksToQuillDelta(blocks);
+      _controller.document = quill.Document.fromDelta(delta);
+      if (_localNote != null) {
+        _localNote = _localNote!.copyWith(title: title, blocks: blocks);
+      }
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Version restored! Save to keep changes.')),
+    );
+  }
+
+  Future<void> _saveVersion() async {
+    if (_localNote == null) return;
+    final profile = ref.read(profileProvider).value;
+    if (profile == null) return;
+    try {
+      final nextVersion = await _versionRepo.getLastVersionNumber(widget.noteId) + 1;
+      await _versionRepo.saveVersion(
+        noteId: widget.noteId,
+        editorId: profile.id,
+        title: _localNote!.title,
+        blocks: _localNote!.blocks,
+        contentText: _localNote!.plainText,
+        versionNumber: nextVersion,
+      );
+    } catch (_) {
+      // Versiyon kaydetme başarısız olsa da not kaydedilmeye devam etsin
+    }
+  }
+
   void _exportNote(String type) async {
     if (_localNote == null) return;
     
