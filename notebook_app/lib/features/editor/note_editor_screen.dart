@@ -319,6 +319,11 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
               onPressed: _showTagManager,
               tooltip: 'Tags',
             ),
+            IconButton(
+              icon: const Icon(PhosphorIconsRegular.clockCounterClockwise),
+              onPressed: _showVersionHistory,
+              tooltip: 'Version History',
+            ),
             PopupMenuButton<String>(
               icon: const Icon(PhosphorIconsRegular.dotsThreeVertical),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
