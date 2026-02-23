@@ -161,6 +161,20 @@ class FolderModel {
         'color': color,
         'position': position,
       };
+
+  FolderModel copyWith({String? name, String? icon, String? color, int? position}) {
+    return FolderModel(
+      id: id,
+      workspaceId: workspaceId,
+      parentId: parentId,
+      ownerId: ownerId,
+      name: name ?? this.name,
+      icon: icon ?? this.icon,
+      color: color ?? this.color,
+      position: position ?? this.position,
+      createdAt: createdAt,
+    );
+  }
 }
 
 /// Etiket modeli
