@@ -83,7 +83,21 @@ Modern bir not alma ekosistemi: Apple Notes'un sadeliği + Notion'ın esnekliği
 - [x] Backend sağlık API (FastAPI /api/health, /api/config)
 - [x] Demo user: demo@notebook.app / Demo1234!
 
-### 2026-02-23 - Sprint 2 (Bu Oturum)
+### 2026-02-23 - Sprint 3 (Bu Oturum)
+- [x] **PDF Türkçe Karakter Desteği**: `PdfGoogleFonts.notoSansRegular()` ile Noto Sans yüklendi → ğ, ü, ş, ı, ö, ç karakterler PDF'de doğru görünür
+- [x] **Markdown UTF-8 Düzeltmesi**: `codeUnits` → `utf8.encode()` dönüşümü ile Türkçe karakterler doğru kodlanır
+- [x] **Not Kartlarında Etiket Rozetleri (Tag Badges)**:
+  - `allNoteTagsMapProvider`: tek sorguda tüm note_tags yüklenir
+  - NoteCard'da `_NoteTags` widget'ı: renkli etiket rozetleri + "+N more" göstergesi
+- [x] **Etiket Filtre → Not Listesi**: `selectedTagFilterProvider` izlenerek `loadNotes(tagId:)` çağrısı yapılır
+- [x] **Not Versiyonlama**:
+  - `note_versions` tablosu için RLS politikası eklendi
+  - `VersionRepository`: fetchVersions, saveVersion, getLastVersionNumber
+  - `VersionHistoryScreen`: versiyon listesi + restore butonu
+  - Editor AppBar'da clock/history butonu
+  - "Save Version" popup menü seçeneği
+  - Versiyon geri yükleme: `_restoreVersion()` metodu
+
 - [x] **Workspace & Klasör Yönetimi (Gelişmiş - B şıkkı)**:
   - Router'a `/workspaces` ve `/workspace/:id` rotaları eklendi
   - Dashboard sidebar'ına Workspaces bölümü + genişletilebilir klasör ağacı eklendi
