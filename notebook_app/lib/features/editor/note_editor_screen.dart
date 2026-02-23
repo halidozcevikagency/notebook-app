@@ -328,6 +328,11 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
               icon: const Icon(PhosphorIconsRegular.dotsThreeVertical),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               itemBuilder: (ctx) => [
+                PopupMenuItem(value: 'save_version', child: Row(children: [
+                  const Icon(PhosphorIconsRegular.clockCounterClockwise, size: 16), const SizedBox(width: 8),
+                  const Text('Save Version'),
+                ])),
+                const PopupMenuDivider(),
                 PopupMenuItem(value: 'export_pdf', child: Row(children: [
                   const Icon(PhosphorIconsRegular.filePdf, size: 16), const SizedBox(width: 8),
                   const Text(AppStrings.exportAsPdf),
@@ -349,6 +354,14 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                   if (mounted) Navigator.pop(context);
                 } else if (value == 'export_pdf' || value == 'export_md') {
                   _exportNote(value);
+                } else if (value == 'save_version') {
+                  await _saveInBackground();
+                  await _saveVersion();
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Version saved!')),
+                    );
+                  }
                 }
               },
             ),
