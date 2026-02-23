@@ -360,6 +360,16 @@ class _SidebarWidget extends ConsumerWidget {
                   selectedIndex: selectedIndex,
                   onIndexChanged: onIndexChanged,
                 ),
+                const SizedBox(height: 8),
+                Divider(height: 1, color: isDark ? AppColors.borderDark : AppColors.borderLight),
+                const SizedBox(height: 8),
+                // Etiketler bölümü
+                _SidebarSectionHeader(
+                  label: 'TAGS',
+                  onAdd: () {},
+                ),
+                const SizedBox(height: 4),
+                _TagSidebarList(),
               ],
             ),
           ),
