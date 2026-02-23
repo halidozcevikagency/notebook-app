@@ -67,6 +67,43 @@ class UserResource extends Resource
                     ->badge()
                     ->color(fn ($state) => $state > 0 ? 'success' : 'gray'),
 
+                TextColumn::make('is_premium')
+                    ->label('Premium')
+                    ->badge()
+                    ->formatStateUsing(fn ($state) => $state ? 'Premium' : 'Free')
+                    ->color(fn ($state) => $state ? 'warning' : 'gray'),
+
+                TextColumn::make('subscription_status')
+                    ->label('Subscription')
+                    ->badge()
+                    ->placeholder('—')
+                    ->color(fn ($state) => match($state) {
+                        'active'       => 'success',
+                        'trial'        => 'info',
+                        'grace_period' => 'warning',
+                        'expired'      => 'danger',
+                        'cancelled'    => 'gray',
+                        default        => 'gray',
+                    }),
+
+                TextColumn::make('subscription_platform')
+                    ->label('IAP Platform')
+                    ->placeholder('—')
+                    ->badge()
+                    ->color(fn ($state) => match($state) {
+                        'ios'     => 'info',
+                        'android' => 'success',
+                        'web'     => 'primary',
+                        default   => 'gray',
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('subscription_expires_at')
+                    ->label('Expires')
+                    ->placeholder('—')
+                    ->since()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('created_at')
                     ->label('Joined')
                     ->since()
