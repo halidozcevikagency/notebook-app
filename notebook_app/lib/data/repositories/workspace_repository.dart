@@ -136,4 +136,13 @@ class WorkspaceRepository {
         .eq('id', id)
         .eq('owner_id', _userId);
   }
+
+  /// Klasör pozisyonunu güncelle (sürükle-bırak sıralama için)
+  Future<void> updateFolderPosition(String id, int position) async {
+    await _supabase
+        .from('folders')
+        .update({'position': position})
+        .eq('id', id)
+        .eq('owner_id', _userId);
+  }
 }
