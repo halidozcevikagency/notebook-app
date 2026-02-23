@@ -442,6 +442,284 @@ class _NavItem extends StatelessWidget {
   }
 }
 
+// ─── Sidebar Section Header ──────────────────────────────────────────────────
+
+class _SidebarSectionHeader extends StatelessWidget {
+  final String label;
+  final VoidCallback onAdd;
+
+  const _SidebarSectionHeader({required this.label, required this.onAdd});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.8,
+                color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: onAdd,
+            child: Icon(
+              PhosphorIconsRegular.dotsThree,
+              size: 16,
+              color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Workspace Sidebar List ──────────────────────────────────────────────────
+
+class _WorkspaceSidebarList extends ConsumerStatefulWidget {
+  final int selectedIndex;
+  final ValueChanged<int> onIndexChanged;
+
+  const _WorkspaceSidebarList({required this.selectedIndex, required this.onIndexChanged});
+
+  @override
+  ConsumerState<_WorkspaceSidebarList> createState() => _WorkspaceSidebarListState();
+}
+
+class _WorkspaceSidebarListState extends ConsumerState<_WorkspaceSidebarList> {
+  final Set<String> _expandedWorkspaces = {};
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final workspacesAsync = ref.watch(workspacesProvider);
+
+    return workspacesAsync.when(
+      data: (workspaces) {
+        if (workspaces.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: GestureDetector(
+              onTap: () => context.push('/workspaces'),
+              child: Text(
+                'Create workspace...',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+          );
+        }
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: workspaces.map((ws) {
+            final isExpanded = _expandedWorkspaces.contains(ws.id);
+            final color = Color(int.parse(ws.color.replaceFirst('#', '0xFF')));
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Material(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        if (isExpanded) {
+                          _expandedWorkspaces.remove(ws.id);
+                        } else {
+                          _expandedWorkspaces.add(ws.id);
+                        }
+                      });
+                    },
+                    onLongPress: () => context.push('/workspace/${ws.id}'),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+                      child: Row(
+                        children: [
+                          Icon(
+                            isExpanded ? PhosphorIconsBold.caretDown : PhosphorIconsRegular.caretRight,
+                            size: 10,
+                            color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+                          ),
+                          const SizedBox(width: 6),
+                          Container(
+                            width: 18,
+                            height: 18,
+                            decoration: BoxDecoration(
+                              color: color.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Center(
+                              child: Text(ws.icon, style: const TextStyle(fontSize: 11)),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              ws.name,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () => context.push('/workspace/${ws.id}'),
+                            child: Icon(
+                              PhosphorIconsRegular.arrowRight,
+                              size: 12,
+                              color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                if (isExpanded)
+                  _WorkspaceFolderTree(workspaceId: ws.id),
+              ],
+            );
+          }).toList(),
+        );
+      },
+      loading: () => const SizedBox(
+        height: 32,
+        child: Center(child: CircularProgressIndicator(strokeWidth: 1.5)),
+      ),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+}
+
+class _WorkspaceFolderTree extends ConsumerWidget {
+  final String workspaceId;
+  const _WorkspaceFolderTree({required this.workspaceId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final foldersAsync = ref.watch(foldersProvider(workspaceId));
+
+    return foldersAsync.when(
+      data: (folders) {
+        final rootFolders = folders.where((f) => f.parentId == null).toList();
+        if (rootFolders.isEmpty) return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.only(left: 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: rootFolders.map((folder) {
+              final subFolders = folders.where((f) => f.parentId == folder.id).toList();
+              final color = Color(int.parse(folder.color.replaceFirst('#', '0xFF')));
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Material(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(6),
+                    child: InkWell(
+                      onTap: () {
+                        ref.read(selectedFolderProvider.notifier).state = folder;
+                        ref.read(notesProvider.notifier).loadNotes(
+                          workspaceId: workspaceId,
+                          folderId: folder.id,
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(6),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                        child: Row(
+                          children: [
+                            Text(folder.icon, style: const TextStyle(fontSize: 12)),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                folder.name,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (color != const Color(0xFF6366F1))
+                              Container(
+                                width: 6,
+                                height: 6,
+                                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (subFolders.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 18),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: subFolders.map((sub) => Material(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(6),
+                          child: InkWell(
+                            onTap: () {
+                              ref.read(selectedFolderProvider.notifier).state = sub;
+                              ref.read(notesProvider.notifier).loadNotes(
+                                workspaceId: workspaceId,
+                                folderId: sub.id,
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(6),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                              child: Row(
+                                children: [
+                                  Text(sub.icon, style: const TextStyle(fontSize: 11)),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      sub.name,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        )).toList(),
+                      ),
+                    ),
+                ],
+              );
+            }).toList(),
+          ),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+}
+
 // ─── Notes List ──────────────────────────────────────────────────────────────
 
 class _NotesList extends ConsumerWidget {
