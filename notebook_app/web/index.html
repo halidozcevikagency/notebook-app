@@ -30,8 +30,19 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>notebook_app</title>
+  <title>Notebook</title>
   <link rel="manifest" href="manifest.json">
+  <!-- Locale patch: Fix RangeError in headless/containerized browsers -->
+  <script>
+    (function() {
+      try {
+        new Intl.NumberFormat('en-US').format(1);
+      } catch(e) {
+        console.warn('Locale fix applied');
+        try { Object.defineProperty(navigator, 'language', { value: 'en-US', configurable: true }); } catch(e2) {}
+      }
+    })();
+  </script>
 </head>
 <body>
   <!--
