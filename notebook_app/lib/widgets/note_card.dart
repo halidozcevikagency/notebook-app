@@ -191,3 +191,77 @@ class _NoteContextMenu extends ConsumerWidget {
     );
   }
 }
+
+// ─── Not Etiket Rozetleri ───────────────────────────────────────────────────
+
+class _NoteTags extends ConsumerWidget {
+  final String noteId;
+  const _NoteTags({required this.noteId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final allTags = ref.watch(tagsProvider).value;
+    final noteTagsMap = ref.watch(allNoteTagsMapProvider).value;
+    if (allTags == null || noteTagsMap == null) return const SizedBox.shrink();
+
+    final noteTagIds = noteTagsMap[noteId] ?? [];
+    if (noteTagIds.isEmpty) return const SizedBox.shrink();
+
+    final noteTags = allTags.where((t) => noteTagIds.contains(t.id)).take(3).toList();
+    if (noteTags.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Wrap(
+        spacing: 5,
+        runSpacing: 4,
+        children: [
+          ...noteTags.map((tag) => _TagBadge(name: tag.name, color: tag.color)),
+          if (noteTagIds.length > 3)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? AppColors.surfaceVariantDark
+                    : AppColors.surfaceVariantLight,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                '+${noteTagIds.length - 3}',
+                style: TextStyle(
+                  fontSize: 9,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? AppColors.textTertiaryDark
+                      : AppColors.textTertiaryLight,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TagBadge extends StatelessWidget {
+  final String name;
+  final String color;
+  const _TagBadge({required this.name, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = Color(int.parse(color.replaceFirst('#', '0xFF')));
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      decoration: BoxDecoration(
+        color: c.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: c.withValues(alpha: 0.3), width: 0.8),
+      ),
+      child: Text(
+        name,
+        style: TextStyle(fontSize: 10, color: c, fontWeight: FontWeight.w600),
+      ),
+    );
+  }
+}
