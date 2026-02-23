@@ -101,6 +101,7 @@ class NotesNotifier extends StateNotifier<AsyncValue<List<NoteModel>>> {
     String? folderId,
     bool pinnedOnly = false,
     bool favoritesOnly = false,
+    String? tagId,
   }) async {
     state = const AsyncValue.loading();
     try {
@@ -109,6 +110,7 @@ class NotesNotifier extends StateNotifier<AsyncValue<List<NoteModel>>> {
         folderId: folderId,
         pinnedOnly: pinnedOnly,
         favoritesOnly: favoritesOnly,
+        tagId: tagId,
       );
       state = AsyncValue.data(notes);
     } catch (e, st) {
