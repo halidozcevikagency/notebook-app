@@ -817,6 +817,183 @@ class _WorkspaceFolderTree extends ConsumerWidget {
 
 // ─── Notes List ──────────────────────────────────────────────────────────────
 
+/// Çöp kutusu görünümü — silinen notları listeler, geri yükleme ve kalıcı silme
+class _TrashView extends ConsumerStatefulWidget {
+  @override
+  ConsumerState<_TrashView> createState() => _TrashViewState();
+}
+
+class _TrashViewState extends ConsumerState<_TrashView> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(notesProvider.notifier).loadTrashedNotes();
+    });
+  }
+
+  Future<void> _restore(String noteId) async {
+    await ref.read(noteRepositoryProvider).restoreFromTrash(noteId);
+    ref.read(notesProvider.notifier).loadTrashedNotes();
+  }
+
+  Future<void> _permanentDelete(String noteId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Kalıcı Olarak Sil'),
+        content: const Text('Bu not kalıcı olarak silinecek. Bu işlem geri alınamaz.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text(AppStrings.cancel)),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+            child: const Text(AppStrings.delete),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await ref.read(noteRepositoryProvider).permanentlyDelete(noteId);
+      ref.read(notesProvider.notifier).loadTrashedNotes();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final notesAsync = ref.watch(notesProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return notesAsync.when(
+      data: (notes) => notes.isEmpty
+          ? EmptyStateWidget(
+              title: AppStrings.trashEmpty,
+              subtitle: 'Silinen notlar 30 gün burada kalır',
+              icon: PhosphorIconsRegular.trash,
+            )
+          : Column(
+              children: [
+                // Çöp kutusunu boşalt butonu
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                  child: Row(
+                    children: [
+                      Text(
+                        '${notes.length} silinen not',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                        ),
+                      ),
+                      const Spacer(),
+                      TextButton.icon(
+                        onPressed: () async {
+                          final ok = await showDialog<bool>(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: const Text(AppStrings.emptyTrash),
+                              content: Text('${notes.length} notu kalıcı olarak sil?'),
+                              actions: [
+                                TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text(AppStrings.cancel)),
+                                FilledButton(
+                                  onPressed: () => Navigator.pop(ctx, true),
+                                  style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+                                  child: const Text('Hepsini Sil'),
+                                ),
+                              ],
+                            ),
+                          );
+                          if (ok == true) {
+                            for (final n in notes) {
+                              await ref.read(noteRepositoryProvider).permanentlyDelete(n.id);
+                            }
+                            ref.read(notesProvider.notifier).loadTrashedNotes();
+                          }
+                        },
+                        icon: const Icon(PhosphorIconsRegular.trash, size: 14),
+                        label: const Text(AppStrings.emptyTrash),
+                        style: TextButton.styleFrom(foregroundColor: AppColors.error),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: notes.length,
+                    itemBuilder: (ctx, i) {
+                      final note = notes[i];
+                      return _TrashedNoteCard(
+                        note: note,
+                        onRestore: () => _restore(note.id),
+                        onDelete: () => _permanentDelete(note.id),
+                      ).animate().fadeIn(delay: (i * 30).ms);
+                    },
+                  ),
+                ),
+              ],
+            ),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(child: Text('Hata: $e')),
+    );
+  }
+}
+
+/// Tek bir silinmiş not kartı — Geri Yükle ve Kalıcı Sil butonlarıyla
+class _TrashedNoteCard extends StatelessWidget {
+  final NoteModel note;
+  final VoidCallback onRestore;
+  final VoidCallback onDelete;
+
+  const _TrashedNoteCard({required this.note, required this.onRestore, required this.onDelete});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(note.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          if (note.deletedAt != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                'Silindi: ${DateFormatter.format(note.deletedAt!)} · 30 gün sonra kalıcı silinir',
+                style: const TextStyle(fontSize: 11, color: AppColors.error),
+              ),
+            ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              TextButton.icon(
+                onPressed: onRestore,
+                icon: const Icon(PhosphorIconsRegular.arrowCounterClockwise, size: 14),
+                label: const Text(AppStrings.restore),
+                style: TextButton.styleFrom(foregroundColor: AppColors.success),
+              ),
+              const Spacer(),
+              TextButton.icon(
+                onPressed: onDelete,
+                icon: const Icon(PhosphorIconsRegular.trash, size: 14),
+                label: const Text(AppStrings.delete),
+                style: TextButton.styleFrom(foregroundColor: AppColors.error),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _NotesList extends ConsumerWidget {
   final List<NoteModel> notes;
 
