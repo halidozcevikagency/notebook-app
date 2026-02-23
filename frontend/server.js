@@ -61,8 +61,17 @@ const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-CSRF-TOKEN, X-Requested-With');
 
-  // /admin/* isteklerini PHP artisan serve'e proxy'le
-  if (req.url === '/admin' || req.url.startsWith('/admin/') || req.url.startsWith('/admin?')) {
+  // /admin/* ve Filament/Livewire asset isteklerini PHP artisan serve'e proxy'le
+  if (
+    req.url === '/admin' ||
+    req.url.startsWith('/admin/') ||
+    req.url.startsWith('/admin?') ||
+    req.url.startsWith('/css/filament/') ||
+    req.url.startsWith('/js/filament/') ||
+    req.url.startsWith('/livewire/') ||
+    req.url.startsWith('/vendor/') ||
+    req.url.startsWith('/up')
+  ) {
     return proxyToAdmin(req, res);
   }
 
