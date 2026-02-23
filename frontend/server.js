@@ -1,13 +1,16 @@
 /**
- * Flutter Web Static File Server
+ * Flutter Web Static File Server + Admin Panel Proxy
  * Flutter build/web çıktısını port 3000'de sunar
+ * /admin/* isteklerini PHP admin panel'e (port 8002) proxy'ler
  */
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
 const FLUTTER_BUILD_DIR = path.join(__dirname, '..', 'notebook_app', 'build', 'web');
 const PORT = parseInt(process.env.PORT || '3000');
+const ADMIN_PORT = 8002;
 
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -25,19 +28,45 @@ const MIME_TYPES = {
   '.map': 'application/json',
 };
 
+function proxyToAdmin(req, res) {
+  const options = {
+    hostname: '127.0.0.1',
+    port: ADMIN_PORT,
+    path: req.url,
+    method: req.method,
+    headers: {
+      ...req.headers,
+      host: `127.0.0.1:${ADMIN_PORT}`,
+    },
+  };
+
+  const proxy = http.request(options, (proxyRes) => {
+    res.writeHead(proxyRes.statusCode, proxyRes.headers);
+    proxyRes.pipe(res, { end: true });
+  });
+
+  proxy.on('error', (err) => {
+    res.writeHead(502);
+    res.end('<h2>Admin panel starting up... Please wait a moment and refresh.</h2>');
+  });
+
+  req.pipe(proxy, { end: true });
+}
+
 const server = http.createServer((req, res) => {
-  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-CSRF-TOKEN, X-Requested-With');
+
+  // /admin/* isteklerini PHP artisan serve'e proxy'le
+  if (req.url === '/admin' || req.url.startsWith('/admin/') || req.url.startsWith('/admin?')) {
+    return proxyToAdmin(req, res);
+  }
 
   let filePath = path.join(FLUTTER_BUILD_DIR, req.url === '/' ? 'index.html' : req.url);
-
-  // Remove query strings
   filePath = filePath.split('?')[0];
 
-  // Check if file exists
   if (!fs.existsSync(filePath)) {
-    // Serve index.html for SPA routing (all unknown routes → index.html)
     filePath = path.join(FLUTTER_BUILD_DIR, 'index.html');
   }
 
@@ -57,5 +86,6 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Notebook Flutter Web server running on port ${PORT}`);
-  console.log(`Serving from: ${FLUTTER_BUILD_DIR}`);
+  console.log(`Admin panel proxy: /admin -> :${ADMIN_PORT}`);
+  console.log(`Serving Flutter from: ${FLUTTER_BUILD_DIR}`);
 });
