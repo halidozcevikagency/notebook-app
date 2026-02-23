@@ -17,28 +17,29 @@ class NoteRepository {
     bool favoritesOnly = false,
   }) async {
     try {
-      var query = _supabase
+      // Filtreleri önce oluştur, order'ı sonra ekle
+      dynamic query = _supabase
           .from('notes')
           .select()
           .isFilter('deleted_at', null)
-          .eq('is_archived', false)
-          .order('is_pinned', ascending: false)
-          .order('updated_at', ascending: false);
+          .eq('is_archived', false);
 
       if (workspaceId != null) {
-        query = query.eq('workspace_id', workspaceId);
+        query = (query as dynamic).eq('workspace_id', workspaceId);
       }
       if (folderId != null) {
-        query = query.eq('folder_id', folderId);
+        query = (query as dynamic).eq('folder_id', folderId);
       }
       if (pinnedOnly) {
-        query = query.eq('is_pinned', true);
+        query = (query as dynamic).eq('is_pinned', true);
       }
       if (favoritesOnly) {
-        query = query.eq('is_favorite', true);
+        query = (query as dynamic).eq('is_favorite', true);
       }
 
-      final List<dynamic> data = await query;
+      final List<dynamic> data = await (query as dynamic)
+          .order('is_pinned', ascending: false)
+          .order('updated_at', ascending: false);
       final notes = data.map((j) => NoteModel.fromJson(j as Map<String, dynamic>)).toList();
       
       // Yerel cache'e kaydet (offline-first)
