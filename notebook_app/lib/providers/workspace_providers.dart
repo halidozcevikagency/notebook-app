@@ -80,8 +80,8 @@ class FoldersNotifier extends StateNotifier<AsyncValue<List<FolderModel>>> {
     return f;
   }
 
-  Future<void> update({required String id, String? name, String? icon}) async {
-    final f = await _repo.updateFolder(id: id, name: name, icon: icon);
+  Future<void> update({required String id, String? name, String? icon, String? color}) async {
+    final f = await _repo.updateFolder(id: id, name: name, icon: icon, color: color);
     final current = state.value ?? [];
     state = AsyncValue.data(current.map((x) => x.id == id ? f : x).toList());
   }
@@ -90,5 +90,17 @@ class FoldersNotifier extends StateNotifier<AsyncValue<List<FolderModel>>> {
     await _repo.deleteFolder(id);
     final current = state.value ?? [];
     state = AsyncValue.data(current.where((x) => x.id != id).toList());
+  }
+
+  /// Sürükle-bırak sonrası yeni sırayı kaydet
+  Future<void> reorder(List<FolderModel> reordered) async {
+    state = AsyncValue.data(reordered);
+    // position alanını güncelle
+    for (var i = 0; i < reordered.length; i++) {
+      final f = reordered[i];
+      if (f.parentId == null) {
+        await _repo.updateFolderPosition(f.id, i);
+      }
+    }
   }
 }
