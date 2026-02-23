@@ -54,4 +54,6 @@ class AppColors {
   // Glassmorphism için
   static const Color glassLight = Color(0x1AFFFFFF);
   static const Color glassDark = Color(0x1AFFFFFF);
+  static const Color surfaceVariantDark = Color(0xFF2D2D2D);
+  static const Color surfaceVariantLight = Color(0xFFEEEEEE);
 }
