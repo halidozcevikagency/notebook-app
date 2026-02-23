@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,10 +20,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Proxy arkasında doğru URL üretimi
-        // Not: env() yerine config() kullanılıyor — config cache aktifken env() çalışmaz
-        $appUrl = rtrim(config('app.url', 'http://localhost'), '/');
-        \Illuminate\Support\Facades\URL::forceScheme('https');
-        \Illuminate\Support\Facades\URL::forceRootUrl($appUrl);
+        // Proxy arkasında olduğumuz için URL üretimini HTTPS'e zorla
+        if (config('app.env') === 'production') {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
     }
 }

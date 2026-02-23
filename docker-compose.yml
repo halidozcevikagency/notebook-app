@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  # Python Backend (Port 8001)
+  backend:
+    build: ./backend
+    restart: always
+    env_file: ./backend/.env
+    ports:
+      - "8001:8001"
+
+  # React/Web Frontend (Port 3000)
+  frontend:
+    build: ./frontend
+    restart: always
+    env_file: ./frontend/.env
+    ports:
+      - "3000:3000"
+
+  # Laravel Admin Panel (Port 8080)
+  admin:
+    build: ./admin
+    restart: always
+    env_file: ./admin/.env
+    ports:
+      - "8000:8000"
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    # Laravel'in dahili sunucusunu başlatalım (En hızlı çözüm)
+    command: php artisan serve --host=0.0.0.0 --port=8000

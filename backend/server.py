@@ -156,3 +156,9 @@ async def admin_restore_note(
     jwt = authorization.replace("Bearer ", "") if authorization else None
     result = await supabase_rpc("admin_restore_note", {"p_note_id": note_id}, jwt=jwt or SUPABASE_ANON_KEY)
     return {"success": True, "result": result}
+
+
+# Dosyanın en sonuna, diğer tüm kodların altına ekle:
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8001)

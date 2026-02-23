@@ -1,12 +1,32 @@
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
+cat << 'EOF' > .gitignore
+# Ortam Değişkenleri ve Şifreler
+.env
+.env.*
+!.env.example
+
+# Laravel / Admin
+admin/vendor/
+admin/node_modules/
+admin/public/build/
+admin/public/hot
+admin/public/storage
+admin/storage/*.key
+admin/storage/logs/
+admin/storage/framework/
+
+# Backend (Python)
+backend/__pycache__/
+backend/venv/
+backend/.env
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env
+frontend/.env.local
+
+# Docker & OS
+.DS_Store
+docker-compose.override.yml
+EOF
