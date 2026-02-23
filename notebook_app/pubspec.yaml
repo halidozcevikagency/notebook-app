@@ -43,8 +43,8 @@ dependencies:
   go_router: ^14.8.1
 
   # Local Database (Offline-First)
-  isar: ^3.1.0+1
-  isar_flutter_libs: ^3.1.0+1
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
   path_provider: ^2.1.5
 
   # UI & Theming
