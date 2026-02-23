@@ -1,0 +1,9 @@
+{
+  "name": "notebook-frontend",
+  "version": "1.0.0",
+  "description": "Notebook App - Flutter Web frontend served by Node.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {}
+}
