@@ -109,14 +109,14 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
 
   // NoteBlock -> Quill Delta dönüşümü
   quill.Delta _blocksToQuillDelta(List<NoteBlock> blocks) {
-    final delta = quill.Delta();
+    final ops = <Map<String, dynamic>>[];
     for (final block in blocks) {
       if (block.content.isNotEmpty) {
-        delta.insert('${block.content}\n');
+        ops.add({'insert': '${block.content}\n'});
       }
     }
-    if (delta.isEmpty) delta.insert('\n');
-    return delta;
+    if (ops.isEmpty) ops.add({'insert': '\n'});
+    return quill.Delta.fromJson(ops);
   }
 
   // AI işlemleri
