@@ -58,10 +58,6 @@ class UserResource extends Resource
                     ->icon('heroicon-m-envelope')
                     ->copyable(),
 
-                TextColumn::make('username')
-                    ->label('Username')
-                    ->placeholder('—'),
-
                 TextColumn::make('note_count')
                     ->label('Notes')
                     ->badge()
