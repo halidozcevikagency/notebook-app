@@ -346,6 +346,19 @@ class _SidebarWidget extends ConsumerWidget {
                   isSelected: selectedIndex == 3,
                   onTap: () => onIndexChanged(3),
                 ),
+                const SizedBox(height: 8),
+                Divider(height: 1, color: isDark ? AppColors.borderDark : AppColors.borderLight),
+                const SizedBox(height: 8),
+                // Workspaces bölümü
+                _SidebarSectionHeader(
+                  label: 'WORKSPACES',
+                  onAdd: () => context.push('/workspaces'),
+                ),
+                const SizedBox(height: 4),
+                _WorkspaceSidebarList(
+                  selectedIndex: selectedIndex,
+                  onIndexChanged: onIndexChanged,
+                ),
               ],
             ),
           ),
