@@ -440,6 +440,22 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     );
   }
 
+  void _showTagManager() {
+    if (_localNote == null) return;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => TagManagerWidget(
+        noteId: widget.noteId,
+        selectedTagIds: _noteTagIds,
+        onTagsChanged: (ids) => setState(() => _noteTagIds = ids),
+      ),
+    );
+  }
+
   void _exportNote(String type) async {
     if (_localNote == null) return;
     
