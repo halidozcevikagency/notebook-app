@@ -45,6 +45,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
   bool _showAiPanel = false;
   bool _isAiLoading = false;
   List<String> _noteTagIds = [];
+  final VersionRepository _versionRepo = VersionRepository();
 
   @override
   void initState() {
