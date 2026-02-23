@@ -11,6 +11,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/services/ai_service.dart';
+import '../../core/services/export_service.dart';
 import '../../core/utils/date_formatter.dart';
 import '../../data/models/note_model.dart';
 import '../../data/repositories/note_repository.dart';
