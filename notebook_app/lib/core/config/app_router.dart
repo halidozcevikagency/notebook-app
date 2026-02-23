@@ -9,6 +9,7 @@ import '../../features/dashboard/dashboard_screen.dart';
 import '../../features/editor/note_editor_screen.dart';
 import '../../features/profile/profile_screen.dart';
 import '../../features/share/share_screen.dart';
+import '../../features/workspace/workspace_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
