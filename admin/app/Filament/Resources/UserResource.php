@@ -40,11 +40,8 @@ class UserResource extends Resource
 
     public static function table(Table $table): Table
     {
-        $bridge = new AdminBridgeService();
-
         return $table
             ->query(fn () => \App\Models\User::query()->whereRaw('1=0'))
-            ->records(fn ($table) => self::getRecords($table))
             ->columns([
                 TextColumn::make('full_name')
                     ->label('Full Name')
