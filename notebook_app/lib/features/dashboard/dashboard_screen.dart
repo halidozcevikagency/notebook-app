@@ -867,7 +867,7 @@ class _TrashViewState extends ConsumerState<_TrashView> {
     return notesAsync.when(
       data: (notes) => notes.isEmpty
           ? EmptyStateWidget(
-              title: AppStrings.trashEmpty,
+              title: AppStrings.emptyTrash,
               subtitle: 'Silinen notlar 30 gün burada kalır',
               icon: PhosphorIconsRegular.trash,
             )
