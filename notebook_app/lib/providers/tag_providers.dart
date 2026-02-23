@@ -50,5 +50,11 @@ final noteTagsProvider = FutureProvider.family<List<String>, String>((ref, noteI
   return ref.watch(tagRepositoryProvider).fetchNoteTagIds(noteId);
 });
 
+/// Tüm kullanıcı not-etiket ilişkileri tek sorguda (badge gösterimi için)
+/// Map<noteId, List<tagId>>
+final allNoteTagsMapProvider = FutureProvider<Map<String, List<String>>>((ref) async {
+  return ref.watch(tagRepositoryProvider).fetchAllNoteTagsMap();
+});
+
 /// Seçili etiket filtresi (dashboard filtreleme için)
 final selectedTagFilterProvider = StateProvider<String?>((ref) => null);
