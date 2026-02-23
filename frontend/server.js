@@ -37,6 +37,9 @@ function proxyToAdmin(req, res) {
     headers: {
       ...req.headers,
       host: `127.0.0.1:${ADMIN_PORT}`,
+      'X-Forwarded-Host': req.headers.host || '',
+      'X-Forwarded-Proto': 'https',
+      'X-Forwarded-For': req.socket.remoteAddress || '',
     },
   };
 
