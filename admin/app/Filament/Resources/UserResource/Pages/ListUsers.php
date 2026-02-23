@@ -5,25 +5,20 @@ namespace App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource;
 use App\Services\AdminBridgeService;
 use Filament\Resources\Pages\ListRecords;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 class ListUsers extends ListRecords
 {
     protected static string $resource = UserResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [];
-    }
+    protected function getHeaderActions(): array { return []; }
 
-    /**
-     * Supabase kullanıcılarını Admin Bridge üzerinden getirir.
-     * Filament'ın Eloquent tablosunu bypass eder.
-     */
-    public function getTableRecords(): Collection|\Illuminate\Contracts\Pagination\Paginator|\Illuminate\Contracts\Pagination\CursorPaginator
+    public function getTableRecords(): EloquentCollection|\Illuminate\Contracts\Pagination\Paginator|\Illuminate\Contracts\Pagination\CursorPaginator
     {
         $bridge = new AdminBridgeService();
-        $users = $bridge->getUsers(limit: 100);
-        return collect($users)->map(fn ($u) => (object) $u);
+        $users  = $bridge->getUsers(limit: 100);
+        // stdClass nesnelerini Fluent ile sar — data_get() bununla çalışır
+        $items  = collect($users)->map(fn ($u) => new \Illuminate\Support\Fluent((array) $u));
+        return EloquentCollection::make($items);
     }
 }
