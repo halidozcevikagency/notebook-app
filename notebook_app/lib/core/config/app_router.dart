@@ -51,6 +51,16 @@ final routerProvider = Provider<GoRouter>((ref) {
           noteId: state.pathParameters['noteId']!,
         ),
       ),
+      GoRoute(
+        path: '/workspaces',
+        builder: (context, state) => const WorkspaceScreen(),
+      ),
+      GoRoute(
+        path: '/workspace/:workspaceId',
+        builder: (context, state) => WorkspaceDetailScreen(
+          workspaceId: state.pathParameters['workspaceId']!,
+        ),
+      ),
     ],
   );
 });
