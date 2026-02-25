@@ -36,18 +36,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     });
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Tag filtresi değişince not listesini yenile
-    ref.listenManual(selectedTagFilterProvider, (prev, next) {
-      if (prev != next) {
-        setState(() => _selectedNavIndex = 0);
-        ref.read(notesProvider.notifier).loadNotes(tagId: next);
-      }
-    });
-  }
-
   Future<void> _createNote() async {
     final profile = ref.read(profileProvider).value;
     if (profile == null) return;
@@ -68,6 +56,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isWide = MediaQuery.of(context).size.width > 900;
     final notesAsync = ref.watch(notesProvider);
+    final selectedTag = ref.watch(selectedTagFilterProvider);
+
+    // Tag filtresi değişince not listesini yenile (build içinde - daha güvenilir)
+    ref.listen(selectedTagFilterProvider, (prev, next) {
+      if (prev != next) {
+        setState(() => _selectedNavIndex = 0);
+        ref.read(notesProvider.notifier).loadNotes(tagId: next);
+      }
+    });
 
     return Scaffold(
       body: Row(
@@ -110,7 +107,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       ? _TrashView()
                       : notesAsync.when(
                           data: (notes) => notes.isEmpty
-                              ? const EmptyStateWidget()
+                              ? EmptyStateWidget(
+                                  title: selectedTag != null
+                                      ? 'Bu etikete ait not bulunamadı'
+                                      : null,
+                                  subtitle: selectedTag != null
+                                      ? 'Bu etiketle işaretlenmiş bir not oluşturun'
+                                      : null,
+                                )
                               : _NotesList(notes: notes),
                           loading: () => const Center(child: CircularProgressIndicator()),
                           error: (e, _) => Center(

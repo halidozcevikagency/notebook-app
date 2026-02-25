@@ -17,13 +17,17 @@ services:
 
   # React/Web Frontend (Port 3000)
   frontend:
-    build: ./frontend
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
     restart: always
     env_file: ./frontend/.env
     ports:
       - "3000:3000"
     networks:
       - app-network
+    volumes:
+      - ./notebook_app:/notebook_app  # İŞTE HAYAT KURTARAN SATIR BURADA (Frontend'in içinde)
 
   # Laravel Admin Panel (Port 8000)
   admin:

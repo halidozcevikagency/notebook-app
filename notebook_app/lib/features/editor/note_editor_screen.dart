@@ -7,6 +7,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:dart_quill_delta/dart_quill_delta.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
@@ -265,18 +266,38 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isWide = MediaQuery.of(context).size.width > 900;
 
     return PopScope(
+      canPop: false,
       onPopInvokedWithResult: (didPop, _) async {
-        if (didPop) await _onLeave();
+        await _onLeave();
+        if (mounted) context.go('/');
       },
-      child: Scaffold(
+      child: Row(
+        children: [
+          // Geniş ekranda minimal sol çubuk
+          if (isWide)
+            _EditorSidebar(
+              isDark: isDark,
+              onBack: () async {
+                await _onLeave();
+                if (mounted) context.go('/');
+              },
+            ),
+          if (isWide)
+            Container(
+              width: 1,
+              color: isDark ? AppColors.borderDark : AppColors.borderLight,
+            ),
+          Expanded(
+            child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
             icon: const Icon(PhosphorIconsRegular.arrowLeft),
             onPressed: () async {
               await _onLeave();
-              if (mounted) Navigator.of(context).pop();
+              if (mounted) context.go('/');
             },
           ),
           // Save göstergesi - sadece kendi ValueNotifier'ına bağlı, editörü etkilemez
@@ -351,7 +372,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                 if (value == 'trash' && _localNote != null) {
                   await NoteRepository().moveToTrash(_localNote!.id);
                   ref.read(notesProvider.notifier).removeNoteFromState(_localNote!.id);
-                  if (mounted) Navigator.pop(context);
+                  if (mounted) context.go('/');
                 } else if (value == 'export_pdf' || value == 'export_md') {
                   _exportNote(value);
                 } else if (value == 'save_version') {
@@ -462,6 +483,9 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                   ),
                 ],
               ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -667,6 +691,105 @@ class _AiPanel extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ─── Editor Sidebar ──────────────────────────────────────────────────────────
+
+class _EditorSidebar extends StatelessWidget {
+  final bool isDark;
+  final VoidCallback onBack;
+
+  const _EditorSidebar({required this.isDark, required this.onBack});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 64,
+      color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+      child: Column(
+        children: [
+          const SizedBox(height: 8),
+          // Logo/brand alanı
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Icon(
+              PhosphorIconsBold.notebook,
+              color: AppColors.primary,
+              size: 22,
+            ),
+          ),
+          Divider(
+            height: 1,
+            color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          ),
+          const SizedBox(height: 8),
+          // Geri – Dashboard
+          _SidebarIconBtn(
+            icon: PhosphorIconsRegular.houseLine,
+            tooltip: 'Dashboard',
+            isDark: isDark,
+            onTap: onBack,
+          ),
+          const SizedBox(height: 4),
+          // Profil
+          _SidebarIconBtn(
+            icon: PhosphorIconsRegular.user,
+            tooltip: 'Profile',
+            isDark: isDark,
+            onTap: () => context.go('/profile'),
+          ),
+          const SizedBox(height: 4),
+          // Çalışma alanları
+          _SidebarIconBtn(
+            icon: PhosphorIconsRegular.squaresFour,
+            tooltip: 'Workspaces',
+            isDark: isDark,
+            onTap: () => context.go('/workspaces'),
+          ),
+          const Spacer(),
+          Divider(
+            height: 1,
+            color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+}
+
+class _SidebarIconBtn extends StatelessWidget {
+  final IconData icon;
+  final String tooltip;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _SidebarIconBtn({
+    required this.icon,
+    required this.tooltip,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      preferBelow: false,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Icon(
+            icon,
+            size: 20,
+            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+          ),
+        ),
       ),
     );
   }

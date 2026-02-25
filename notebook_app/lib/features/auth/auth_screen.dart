@@ -25,6 +25,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   bool _isLoading = false;
   bool _obscurePassword = true;
   String? _errorMessage;
+  bool _signUpSuccess = false;
 
   @override
   void dispose() {
@@ -36,7 +37,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   Future<void> _handleEmailAuth() async {
     if (!_formKey.currentState!.validate()) return;
-    setState(() { _isLoading = true; _errorMessage = null; });
+    setState(() { _isLoading = true; _errorMessage = null; _signUpSuccess = false; });
 
     try {
       final repo = ref.read(authRepositoryProvider);
@@ -46,6 +47,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           password: _passwordController.text,
           fullName: _nameController.text.trim(),
         );
+        if (mounted) {
+          setState(() {
+            _signUpSuccess = true;
+            _isSignUp = false;
+          });
+        }
       } else {
         await repo.signInWithEmail(
           email: _emailController.text.trim(),
@@ -53,7 +60,15 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         );
       }
     } catch (e) {
-      setState(() { _errorMessage = e.toString().replaceAll('Exception: ', ''); });
+      String msg = e.toString().replaceAll('Exception: ', '');
+      if (msg.contains('email_not_confirmed') || msg.contains('Email not confirmed')) {
+        msg = '📧 E-posta adresiniz henüz onaylanmadı.\nKayıt sırasında gönderilen onay e-postasını kontrol edin.';
+      } else if (msg.contains('Invalid login credentials')) {
+        msg = 'E-posta veya şifre hatalı.';
+      } else if (msg.contains('User already registered')) {
+        msg = 'Bu e-posta adresi zaten kayıtlı.';
+      }
+      setState(() { _errorMessage = msg; });
     } finally {
       if (mounted) setState(() { _isLoading = false; });
     }
@@ -246,6 +261,30 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                             return null;
                           },
                         ),
+
+                        if (_signUpSuccess) ...[
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.green.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.green.withOpacity(0.4)),
+                            ),
+                            child: const Row(
+                              children: [
+                                Icon(Icons.check_circle_outline, color: Colors.green, size: 18),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    '✅ Hesap oluşturuldu! E-postanızı onaylayıp giriş yapabilirsiniz.',
+                                    style: TextStyle(color: Colors.green, fontSize: 13),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
 
                         if (_errorMessage != null) ...[
                           const SizedBox(height: 12),

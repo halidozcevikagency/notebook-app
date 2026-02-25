@@ -58,7 +58,7 @@ class _ShareNoteScreenState extends ConsumerState<ShareNoteScreen> {
           .single();
 
       final token = result['share_token'] as String;
-      final link = '${SupabaseConfig.url}/share/$token';
+      final link = 'https://notebook.softwarerises.com/#/share/$token';
       setState(() => _shareLink = link);
       await _loadShares();
     } finally {
