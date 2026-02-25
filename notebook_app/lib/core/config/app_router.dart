@@ -14,7 +14,15 @@ import '../../features/workspace/workspace_screen.dart';
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/',
+    
+    // YÖNLENDİRME (REDIRECT) KURALLARI
     redirect: (context, state) {
+      // 1. KURAL: Supabase'den Google/Apple dönüşü access_token geldiyse panikleme, ana sayfaya at!
+      if (state.uri.toString().contains('access_token=')) {
+        return '/';
+      }
+
+      // Standart Auth kontrolleri
       final session = Supabase.instance.client.auth.currentSession;
       final isAuth = session != null;
       final isAuthRoute = state.matchedLocation == '/auth';
@@ -23,6 +31,17 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (isAuth && isAuthRoute) return '/';
       return null;
     },
+
+    // 2. KURAL: GoRouter ne idüğü belirsiz bir linkten dolayı 404 yerse (yedek güvenlik)
+    errorBuilder: (context, state) {
+      if (state.uri.toString().contains('access_token=')) {
+        return const DashboardScreen(); // Yine çaktırmadan içeri al
+      }
+      return Scaffold(
+        body: Center(child: Text('Sayfa bulunamadı: ${state.uri.toString()}')),
+      );
+    },
+
     refreshListenable: GoRouterRefreshStream(
       Supabase.instance.client.auth.onAuthStateChange,
     ),
