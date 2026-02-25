@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\ApiRecord;
 use App\Services\AdminBridgeService;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
@@ -36,7 +37,7 @@ class LatestNotesWidget extends BaseWidget
         $bridge = new AdminBridgeService();
         $notes  = $bridge->getNotes(limit: 8);
         return EloquentCollection::make(
-            collect($notes)->map(fn ($n) => new \Illuminate\Support\Fluent((array) $n))
+            collect($notes)->map(fn ($n) => ApiRecord::fromArray((array) $n))
         );
     }
 }

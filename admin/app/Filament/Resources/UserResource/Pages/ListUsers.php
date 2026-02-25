@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Filament\Resources\UserResource;
+use App\Models\ApiRecord;
 use App\Services\AdminBridgeService;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -17,8 +18,8 @@ class ListUsers extends ListRecords
     {
         $bridge = new AdminBridgeService();
         $users  = $bridge->getUsers(limit: 100);
-        // stdClass nesnelerini Fluent ile sar — data_get() bununla çalışır
-        $items  = collect($users)->map(fn ($u) => new \Illuminate\Support\Fluent((array) $u));
+        // Fluent yerine ApiRecord — Filament getRecordAction() Eloquent Model bekler
+        $items  = collect($users)->map(fn ($u) => ApiRecord::fromArray((array) $u));
         return EloquentCollection::make($items);
     }
 }

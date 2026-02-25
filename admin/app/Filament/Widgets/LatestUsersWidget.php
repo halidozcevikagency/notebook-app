@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\ApiRecord;
 use App\Services\AdminBridgeService;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
@@ -34,7 +35,7 @@ class LatestUsersWidget extends BaseWidget
         $bridge = new AdminBridgeService();
         $users  = $bridge->getUsers(limit: 8);
         return EloquentCollection::make(
-            collect($users)->map(fn ($u) => new \Illuminate\Support\Fluent((array) $u))
+            collect($users)->map(fn ($u) => ApiRecord::fromArray((array) $u))
         );
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\NoteResource\Pages;
 
 use App\Filament\Resources\NoteResource;
+use App\Models\ApiRecord;
 use App\Services\AdminBridgeService;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -17,7 +18,8 @@ class ListNotes extends ListRecords
     {
         $bridge = new AdminBridgeService();
         $notes  = $bridge->getNotes(limit: 100);
-        $items  = collect($notes)->map(fn ($n) => new \Illuminate\Support\Fluent((array) $n));
+        // Fluent yerine ApiRecord — Filament getRecordAction() Eloquent Model bekler
+        $items  = collect($notes)->map(fn ($n) => ApiRecord::fromArray((array) $n));
         return EloquentCollection::make($items);
     }
 }
