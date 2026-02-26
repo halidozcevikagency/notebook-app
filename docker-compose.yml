@@ -36,11 +36,10 @@ services:
     env_file: ./admin/.env
     ports:
       - "8000:8000"
-    volumes:
-      - ./admin:/var/www
     networks:
       - app-network
     depends_on:
       - backend
-    # Laravel'in dahili sunucusunu başlatalım (En hızlı çözüm)
+    environment:
+      - PHP_CLI_SERVER_WORKERS=10
     command: php artisan serve --host=0.0.0.0 --port=8000
